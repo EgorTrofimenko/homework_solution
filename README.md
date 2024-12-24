@@ -1,154 +1,49 @@
 # Лабораторная работа 6
 ## Разминка
 
-Шаг 1. Создайте файл sample.txt с произвольным содержимым. Например, введите следующие строки:
+1. Я Создал файл data.txt с произвольным содержимым при помощи команды:
 ```
-echo -e "яблоко\nбанан\nгруша\nяблоко\nапельсин\nбанан" > sample.txt
+echo -e "user1,25,developer\nuser2,30,designer\nuser3,22,manager\nuser4,35,developer\nuser5,29,developer" > data.txt
 ```
+![image](https://github.com/user-attachments/assets/b488f484-2baa-48e3-a686-7d65971c1351)
 
-Шаг 2. Используйте команду sort для сортировки строк в файле:
+2. Нашел все строки, содержащие слово "developer" и сохранил их в файл developers.txt:
 ```
-sort sample.txt
+grep "developer" data.txt > developers.txt
 ```
+![image](https://github.com/user-attachments/assets/43965ac7-3ba5-4361-b0c9-d8dc89dcf28c)
 
-Вывод будет следующим:
+3. Нашел средний возраст пользователей из developers.txt:
+![image](https://github.com/user-attachments/assets/6243cc68-c8da-4ded-92cf-8aa0fcbd3a15)
+
+4. Создал скрипт error_filter.sh, который будет проверять существование файла и выводить ошибку или содержимое:
+![image](https://github.com/user-attachments/assets/5c5c35b0-9a60-4c37-872c-dbe84dfd48ef)
+сделал его исполнимым:
 ```
-апельсин
-банан
-банан
-груша
-яблоко
-яблоко
+ chmod +x error_filter.sh
 ```
-
-Для сохранения результата в новый файл используйте:
+Теперь, если файл существуте, выполняя данный скрипт, я получаю строки, содержащие искомое слово, в противном случае - ошибку
+![image](https://github.com/user-attachments/assets/84e297d6-57df-46a1-b3c0-5c70dd5ff0e5)
+5. Перенаправил поток вывода в отдельные файлы 
 ```
-sort sample.txt > sorted.txt
+./error_filter.sh data.txt developer > output.log 2> error.log
 ```
+![image](https://github.com/user-attachments/assets/279e6a6e-b40d-47dd-9168-eb2d32e7c48d)
 
-Шаг 3. Примените команду uniq для удаления повторов из отсортированного файла:
+6. Отсортировал пользователей по возрасту в порядке убывания
 ```
-uniq sorted.txt
+sort -t ',' -k2,2nr developers.txt > sorted_developers.txt
 ```
+![image](https://github.com/user-attachments/assets/dae070cc-7c65-46ba-95d4-33cca55ff5f0)
 
-Результат:
+Удалил строки с дублирующимися именами и вывел в файл unique_sorted.txt
 ```
-апельсин
-банан
-груша
-яблоко
+sort -t ',' -k2,2nr developers.txt | uniq > unique_sorted.txt
 ```
-
-Сохраните результат в новый файл:
+7. Создал конвейер для подсчета строк и сохранил результат в role_counts.txt
 ```
-uniq sorted.txt > unique.txt
+echo "developer: $(grep -c "developer" data.txt)" > role_counts.txt
+echo "manager: $(grep -c "manager" data.txt)" >> role_counts.txt
+echo "designer: $(grep -c "designer" data.txt)" >> role_counts.txt
 ```
-
-Шаг 4. Используйте uniq -c, чтобы добавить количество повторений перед каждой строкой:
-```
-uniq -c sorted.txt
-```
-
-Вывод:
-```
-      1 апельсин
-      2 банан
-      1 груша
-      2 яблоко
-```
-
-Сохраните результат в файл counts.txt:
-```
-uniq -c sorted.txt > counts.txt
-```
-
-Шаг 5. Теперь попробуем объединить команды sort и uniq в один конвейер. Это позволит избежать создания промежуточных файлов:
-```
-sort sample.txt | uniq -c
-```
-
-Вывод будет таким же, как в шаге 4.
-
-Для сохранения результата в файл используйте tee:
-```
-sort sample.txt | uniq -c | tee pipeline_output.txt
-```
-
-Шаг 6. Создайте скрипт example.sh:
-```
-#!/bin/bash
-echo "Это стандартный вывод"
-echo "Это сообщение об ошибке" >&2
-```
-
-Запустите скрипт, перенаправив стандартный вывод и ошибки в разные файлы:
-```
-./example.sh > output.log 2> error.log
-```
-
-Теперь у вас есть два файла:
-
-
-- output.log с содержимым:
-```
-Это стандартный вывод
-```
-
-- error.log с содержимым:
-```
-Это сообщение об ошибке
-```
-
-После выполнения разминки вы готовы к выполнению основного задания!
-## Задание лабораторной работы
-
-
-1. Создайте текстовый файл data.txt с произвольным содержимым, например:
-   ```
-   user1,25,developer
-   user2,30,designer
-   user3,22,manager
-   user4,35,developer
-   user5,29,developer
-   ```
-
-2. Напишите команду для фильтрации строк из файла data.txt, содержащих слово "developer", и сохраните результат в файл developers.txt.
-
-3. Вычислите средний возраст пользователей, указанных в файле developers.txt.  
-   - Используйте команды cut, awk и bc для обработки данных.
-
-4. Создайте скрипт error_filter.sh, который:  
-   - Проверяет существование файла, переданного в качестве первого аргумента.  
-   - Выводит сообщение об ошибке в стандартный поток ошибок, если файл не найден.  
-   - В противном случае, выводит строки, содержащие слово, переданное вторым аргументом.  
-
-5. Организуйте выполнение скрипта с перенаправлением стандартного вывода и потока ошибок в отдельные файлы.
-
-6. Выполните следующие действия:  
-   - Отсортируйте строки из файла developers.txt по возрасту пользователей в порядке убывания.  
-   - Удалите строки с дублирующимися именами.  
-   - Выведите результат в файл unique_sorted.txt.
-
-7. Создайте конвейер для поиска и подсчета строк в data.txt, содержащих следующие слова:  
-   - "developer"  
-   - "manager"  
-   - "designer"  
-   Используйте конвейер для вывода результатов в файл role_counts.txt в формате:  
-   ```
-   developer: N
-   manager: M
-   designer: L
-   ```
-
-## Как успешно сдать работу?
-Создать свой репозиторий из шаблона этого. Как это делается - "Use this template" -> "Create a new repository" и сделайте его public.
-
-Находясь уже в своем репозитории - создайте новый файл формата .md и там оформляйте отчет. В отчете опишите все шаги которые вы делали, чтобы получить финальный результат работы.
-
-Что вам нужно знать, чтобы успешно защитить работу: что такое управление вводом/выводом, как оно работает, что такое конвейерная обработка, как использовать конвейерную обработку в Bash
-
-## Ресурсы для подготовки:
-
-1. [Официальная документация Bash](https://www.gnu.org/software/bash/manual/bash.html)
-2. [Advanced Bash-Scripting Guide](https://tldp.org/LDP/abs/html/)
-3. [Google](https://google.com)
+![image](https://github.com/user-attachments/assets/e993da9c-d4e4-4bf9-9cd0-9a5f956b8a27)
